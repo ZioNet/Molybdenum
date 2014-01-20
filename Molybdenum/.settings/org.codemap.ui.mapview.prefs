@@ -1,0 +1,9 @@
+eclipse.preferences.version=1
+org.codemap.call_hierarchy=false
+org.codemap.coloring=org.codemap.commands.HeatMapColoring
+org.codemap.labeling=org.codemap.commands.ClassNameLabeling
+org.codemap.marker=false
+org.codemap.open_files=false
+org.codemap.search_results=true
+org.codemap.selection=true
+org.codemap.you_are_here=false
