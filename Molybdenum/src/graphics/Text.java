@@ -98,7 +98,7 @@ public class Text {
 		map.put("&", array[38]);
 		map.put("'", array[39]);
 		map.put("(", array[40]);
-		map.put(")", array[41]);//TODO Resource edit required
+		map.put(")", array[41]);
 		map.put(":", array[58]);
 		map.put("|", array[22]);
 		map.put("?", array[63]);

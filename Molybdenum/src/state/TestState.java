@@ -27,7 +27,7 @@ public class TestState extends State {
 		Molybdenum.setAwtColor(Color.WHITE);
 		Molybdenum.getText().drawStringS("Molybdenum | Test State", 16, 16, Text.LEFT, 3f,4);
 		
-		Molybdenum.getText().drawStringS("There doesn't seem to be anything worth testing here...", Display.getWidth()/2, Display.getHeight()/2-64, Text.CENTER, 1.7f, 4);
+		Molybdenum.getText().drawStringS("(There doesn't seem to be anything worth testing here...)", Display.getWidth()/2, Display.getHeight()/2-64, Text.CENTER, 1.7f, 4);
 		Molybdenum.getText().drawStringS("Press TAB to return!", Display.getWidth()/2, Display.getHeight()/2, Text.CENTER, 2f, 5);
 	}
 	public void input() {
