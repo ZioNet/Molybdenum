@@ -2,7 +2,6 @@ package map;
 
 public class MapData implements Cloneable{
 
-	//35x15
 	public int WIDTH;
 	public int HEIGHT;
 	public Tile[][] map;

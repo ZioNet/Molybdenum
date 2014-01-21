@@ -41,15 +41,17 @@ public class MapEditorState extends State{
 		mio = new MapIO();
 		mapData = mio.createBasicMap();
 	}
-
+	
+	public int DISPLAY_WIDTH = 60;
+	public int DISPLAY_HEIGHT = 30;
 
 	public void update(int delta) {
 		input();
 
 		//Map Replace
 		if(mouseLeft){
-			if(mouseX/tw < mapData.WIDTH && mouseX/tw >= 0){
-				if(mouseY/th < mapData.HEIGHT && mouseY/th >= 0){
+			if(mouseX/tw < DISPLAY_WIDTH && mouseX/tw >= 0){
+				if(mouseY/th < DISPLAY_HEIGHT && mouseY/th >= 0){
 					mapData.map[mouseY/th][mouseX/tw] = dictionary.getTile(selectedTileChar);//TODO Fillmode
 				}
 			}
@@ -57,7 +59,7 @@ public class MapEditorState extends State{
 		//Player Location
 		int hoverX = mouseX/tw;
 		int hoverY = mouseY/th;
-		if(mouseRight){
+		if(mouseRight){//TODO MAP CHANGE
 			if(hoverX >= 0 && hoverX < mapData.WIDTH){
 				if(hoverY >= 0 && hoverY < mapData.HEIGHT){
 					playerX = hoverX;

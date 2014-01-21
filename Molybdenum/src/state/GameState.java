@@ -29,6 +29,7 @@ import graphics.Texture;
 public class GameState extends State{
 
 	MapIO mio;
+	MapData privateMap = new MapData();
 
 	int tw;//Buffer of +2
 	int th;//Buffer of -2
@@ -50,22 +51,47 @@ public class GameState extends State{
 
 	int rotation;
 
-	MapData privateMap = new MapData();
-
 	public EntityManager em;
 
+	public int DISPLAY_WIDTH;
+	public int DISPLAY_HEIGHT;
+	public int MAP_EDGE_BUFFER = 6;
+	public int MAP_OFFSET_X;
+	public int MAP_OFFSET_Y;
+	
 	public GameState() {
 		em = new EntityManager();
 		init();
 	}	
+
+	public void addToMapOffsetX(int i){
+		if(DISPLAY_WIDTH-(MAP_OFFSET_X+i)<=map().WIDTH){
+			if(MAP_OFFSET_X+i<=0){
+				MAP_OFFSET_X += i;
+			}
+		}
+	}
+	public void addToMapOffsetY(int i){
+		if(DISPLAY_HEIGHT-(MAP_OFFSET_Y+i)<=map().HEIGHT){
+			if(MAP_OFFSET_Y+i<=0){
+				MAP_OFFSET_Y += i;
+			}
+		}
+	}
 
 	public void init() {
 		mio = new MapIO();
 		invViewing = false;
 		tw = Molybdenum.getText().tw;
 		th = Molybdenum.getText().th;
+		DISPLAY_WIDTH = 60;
+		DISPLAY_HEIGHT = 30;
+		MAP_OFFSET_X = 0;
+		MAP_OFFSET_Y = 0;
 	}
 
+	private int lastX;
+	private int lastY;
 	public void update(int delta) {
 		input();
 		em.update(delta);
@@ -89,6 +115,23 @@ public class GameState extends State{
 			respawnWait = wait;
 			spawnPlayer(spawn);
 		}
+		//After the player is updated, update viewport changes
+		if(em.getPlayer()!=null){
+			lastX = em.getPlayer().x;
+			lastY = em.getPlayer().y;
+		}
+		if(lastX+MAP_OFFSET_X+MAP_EDGE_BUFFER > DISPLAY_WIDTH){
+			addToMapOffsetX(-1);
+		}
+		if(lastY+MAP_OFFSET_Y+MAP_EDGE_BUFFER > DISPLAY_HEIGHT){
+			addToMapOffsetY(-1);
+		}
+		if(lastX+MAP_OFFSET_X-MAP_EDGE_BUFFER < 0){
+			addToMapOffsetX(1);
+		}
+		if(lastY+MAP_OFFSET_Y-MAP_EDGE_BUFFER < 0){
+			addToMapOffsetY(1);
+		}
 	}
 	public void render() {
 		//Draw black square
@@ -98,40 +141,42 @@ public class GameState extends State{
 		glEnable(GL_TEXTURE_2D);
 		Molybdenum.setAwtColor(Color.WHITE);
 		//Render Map
-		int w = map().WIDTH;
-		int h = map().HEIGHT;
-		for(int x=0;x<w;x++){
-			for(int y=0;y<h;y++){
-				Tile currentTile = map().map[y][x];
+		int w = DISPLAY_WIDTH;
+		int h = DISPLAY_HEIGHT;
+		for(int x=MAP_OFFSET_X;x<w;x++){
+			for(int y=MAP_OFFSET_Y;y<h;y++){
+				Tile currentTile = map().map[y-MAP_OFFSET_Y][x-MAP_OFFSET_X];
 				Molybdenum.setAwtColor(currentTile.color);
 				Molybdenum.getText().drawString(currentTile.character+"", x*tw, y*th, Text.LEFT, 1);
 			}
 		}
 		//Render Entities
-		//Molybdenum.setAwtColor(em.getPlayer().color);
-		//Molybdenum.getText().drawString(em.getPlayer().character+"", em.getPlayer().x*tw, em.getPlayer().y*th, Text.LEFT, 1);
 		for(Entity e:em.getEntities()){
 			if(e.map.filename.equals(map().filename)){
-				Molybdenum.setAwtColor(e.color);
-				boolean dance = false;
-				if(e instanceof Creature){
-					Creature c = (Creature)e;
-					if(c.isDancing){
-						dance = true;
-					}
+				if(e.x > MAP_OFFSET_X && e.x <= DISPLAY_WIDTH-MAP_OFFSET_X){
+					if(e.y > MAP_OFFSET_Y && e.y <= DISPLAY_HEIGHT-MAP_OFFSET_Y){
+						Molybdenum.setAwtColor(e.color);
+						boolean dance = false;
+						if(e instanceof Creature){
+							Creature c = (Creature)e;
+							if(c.isDancing){
+								dance = true;
+							}
 
-				}
-				if(dance){
-					Molybdenum.setPrettyColorMode(true);
-					glPushMatrix();
-					glTranslatef(e.x*tw+tw/2, e.y*th+th/2, 0);
-					glRotatef(rotation, 0, 0, 1);
-					glTranslatef(-(e.x*tw+tw/2), -(e.y*th+th/2), 0);
-				}
-				Molybdenum.getText().drawString(e.character+"", e.x*tw, e.y*th, Text.LEFT, 1);
-				if(dance){
-					glPopMatrix();
-					Molybdenum.setPrettyColorMode(false);
+						}
+						if(dance){
+							Molybdenum.setPrettyColorMode(true);
+							glPushMatrix();
+							glTranslatef(e.x*tw+tw/2, e.y*th+th/2, 0);
+							glRotatef(rotation, 0, 0, 1);
+							glTranslatef(-(e.x*tw+tw/2), -(e.y*th+th/2), 0);
+						}
+						Molybdenum.getText().drawString(e.character+"", (e.x+MAP_OFFSET_X)*tw, (e.y+MAP_OFFSET_Y)*th, Text.LEFT, 1);
+						if(dance){
+							glPopMatrix();
+							Molybdenum.setPrettyColorMode(false);
+						}
+					}
 				}
 			}
 		}
@@ -463,6 +508,18 @@ public class GameState extends State{
 								}
 							}
 						}
+					}
+					if (Keyboard.getEventKey() == Keyboard.KEY_UP) {
+						addToMapOffsetY(-1);
+					}
+					if (Keyboard.getEventKey() == Keyboard.KEY_DOWN) {
+						addToMapOffsetY(+1);
+					}
+					if (Keyboard.getEventKey() == Keyboard.KEY_LEFT) {
+						addToMapOffsetX(-1);
+					}
+					if (Keyboard.getEventKey() == Keyboard.KEY_RIGHT) {
+						addToMapOffsetX(+1);
 					}
 				}
 			}
