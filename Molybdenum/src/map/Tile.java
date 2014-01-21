@@ -9,12 +9,17 @@ public class Tile implements Cloneable{
 		this.type = Tile.NORMAL;
 		this.character = character;
 		this.collision = collision;
-		this.color = color;
+		this.colorFG = color;
 		description = desc;
+	}
+	public Tile(char character, String desc, Color colorFG,Color colorBG, boolean collision){
+		this(character,desc,colorFG,collision);
+		this.colorBG = colorBG;		
 	}
 	
 	public String description = "Default Tile";
-	public Color color = Color.WHITE;
+	public Color colorFG = Color.WHITE;
+	public Color colorBG = Color.BLACK;
 	public boolean collision = true;
 	public char character = '~';
 	
@@ -35,7 +40,7 @@ public class Tile implements Cloneable{
 		cloned.type = this.type;
 		cloned.character = this.character;
 		cloned.collision = this.collision;
-		cloned.color = this.color;
+		cloned.colorFG = this.colorFG;
 		cloned.description = this.description;
 		
 		return cloned;

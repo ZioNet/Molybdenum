@@ -35,5 +35,13 @@ public class Node {
 		int dy = Math.abs(n.getY()-getY());
 		return dx+dy;
 	}
+	public int getLinearDistance(Node n){
+		int x = n.x;
+		int y = n.y;
+		
+		int t = (y*y)/(x*x);
+		
+		return (int) Math.sqrt(t);
+	}
 	
 }

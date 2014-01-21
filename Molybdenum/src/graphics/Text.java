@@ -1,10 +1,15 @@
 package graphics;
 
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
 import game.Molybdenum;
 
 import java.awt.Color;
 import java.util.HashMap;
 
+import state.GameState;
+import state.StateManager;
 
 public class Text {
 	
@@ -42,6 +47,18 @@ public class Text {
 			str = str.substring(0, setWidth-4);
 			str+="...";
 		}
+		drawString(str,x,y,type,scale);
+	}
+	public void drawStringB(String str,int x,int y,int type,float scale,Color bg, Color fg){
+		glDisable(GL_TEXTURE_2D);
+		Molybdenum.setAwtColor(bg);
+		int tw = ((GameState) Molybdenum.getStateManager().getState(StateManager.GAMESTATE)).tw;
+		int th = ((GameState) Molybdenum.getStateManager().getState(StateManager.GAMESTATE)).th;
+		
+		Molybdenum.GLQuad(x, y, tw*str.length(), th,scale);
+		glEnable(GL_TEXTURE_2D);
+		Molybdenum.setAwtColor(fg);
+		
 		drawString(str,x,y,type,scale);
 	}
 	public void drawString(String str,int x,int y,int type,float scale){
@@ -88,7 +105,7 @@ public class Text {
 		return map.get(ch+"");
 	}
 	private void sort(Texture[] array){
-		map.put("♥", array[00]);
+		map.put("\u4200", array[00]);
 		map.put(" ", array[32]);
 		map.put("!", array[33]);
 		map.put("\"",array[34]);

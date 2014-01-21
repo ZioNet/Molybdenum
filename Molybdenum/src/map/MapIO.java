@@ -174,7 +174,7 @@ public class MapIO {
 						Tile tile = new Tile();
 						tile.character = mapData.map[y][x].character;
 						tile.collision = mapData.map[y][x].collision;
-						tile.color = mapData.map[y][x].color;
+						tile.colorFG = mapData.map[y][x].colorFG;
 						tile.description = mapData.map[y][x].description;
 						tile.type = type;
 						tile.WARP_NAME = filename;
@@ -192,7 +192,7 @@ public class MapIO {
 						Tile tile = new Tile();
 						tile.character = mapData.map[y][x].character;
 						tile.collision = mapData.map[y][x].collision;
-						tile.color = mapData.map[y][x].color;
+						tile.colorFG = mapData.map[y][x].colorFG;
 						tile.description = mapData.map[y][x].description;
 						tile.type = Tile.INFO;
 						tile.INFO_TEXT = info;

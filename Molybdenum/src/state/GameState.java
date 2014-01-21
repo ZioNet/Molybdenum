@@ -29,13 +29,13 @@ import graphics.Texture;
 public class GameState extends State{
 
 	MapIO mio;
-	MapData privateMap = new MapData();
+	MapData privateMap;
 
-	int tw;//Buffer of +2
-	int th;//Buffer of -2
+	public int tw;//Buffer of +2
+	public int th;//Buffer of -2
 
-	double playerBounceOffset;
-	int counter;
+	double bounceOffset;
+	int bounceOffsetDelta;
 	int tileX = 0;
 	int tileY = 0;
 
@@ -44,44 +44,32 @@ public class GameState extends State{
 	boolean mouseLeft;
 	boolean mouseRight;
 
-	boolean invViewing;
+	boolean inventoryView;
 	boolean death;
-	final int wait = 10000;//10 Seconds
-	int respawnWait = wait;
+	private int lastPlayerX;
+	private int lastPlayerY;
+	final int respawnWaitTime = 10000;//10 Seconds
+	int respawnDelta = respawnWaitTime;
 
-	int rotation;
+	int danceRotation;
 
 	public EntityManager em;
 
 	public int DISPLAY_WIDTH;
 	public int DISPLAY_HEIGHT;
-	public int MAP_EDGE_BUFFER = 6;
+	public int MAP_EDGE_BUFFER = 20;
 	public int MAP_OFFSET_X;
 	public int MAP_OFFSET_Y;
 	
 	public GameState() {
 		em = new EntityManager();
+		privateMap = new MapData();
 		init();
 	}	
 
-	public void addToMapOffsetX(int i){
-		if(DISPLAY_WIDTH-(MAP_OFFSET_X+i)<=map().WIDTH){
-			if(MAP_OFFSET_X+i<=0){
-				MAP_OFFSET_X += i;
-			}
-		}
-	}
-	public void addToMapOffsetY(int i){
-		if(DISPLAY_HEIGHT-(MAP_OFFSET_Y+i)<=map().HEIGHT){
-			if(MAP_OFFSET_Y+i<=0){
-				MAP_OFFSET_Y += i;
-			}
-		}
-	}
-
 	public void init() {
 		mio = new MapIO();
-		invViewing = false;
+		inventoryView = false;
 		tw = Molybdenum.getText().tw;
 		th = Molybdenum.getText().th;
 		DISPLAY_WIDTH = 60;
@@ -90,46 +78,44 @@ public class GameState extends State{
 		MAP_OFFSET_Y = 0;
 	}
 
-	private int lastX;
-	private int lastY;
 	public void update(int delta) {
 		input();
 		em.update(delta);
 		//Bouncing
-		counter += delta;
-		playerBounceOffset = Math.sin(counter/300)*4;
-		if(counter >= 10000){
-			counter = 0;
+		bounceOffsetDelta += delta;
+		bounceOffset = Math.sin(bounceOffsetDelta/300)*4;
+		if(bounceOffsetDelta >= 10000){
+			bounceOffsetDelta = 0;
 		}
-		rotation += delta;
+		danceRotation += delta;
 		//DEATH
 		if(em.getPlayer()==null){
 			death = true;
-			respawnWait-=delta;
+			respawnDelta-=delta;
 		}else{
 			death = false;
 		}
 
-		if(death && respawnWait <= 1000){ 
+		if(death && respawnDelta <= 1000){ 
 			MapData spawn = Molybdenum.getWorldIO().getSpawnMapData();
-			respawnWait = wait;
+			respawnDelta = respawnWaitTime;
 			spawnPlayer(spawn);
 		}
 		//After the player is updated, update viewport changes
 		if(em.getPlayer()!=null){
-			lastX = em.getPlayer().x;
-			lastY = em.getPlayer().y;
+			lastPlayerX = em.getPlayer().x;
+			lastPlayerY = em.getPlayer().y;
 		}
-		if(lastX+MAP_OFFSET_X+MAP_EDGE_BUFFER > DISPLAY_WIDTH){
+		if(lastPlayerX+MAP_OFFSET_X+MAP_EDGE_BUFFER > DISPLAY_WIDTH){
 			addToMapOffsetX(-1);
 		}
-		if(lastY+MAP_OFFSET_Y+MAP_EDGE_BUFFER > DISPLAY_HEIGHT){
+		if(lastPlayerY+MAP_OFFSET_Y+MAP_EDGE_BUFFER > DISPLAY_HEIGHT){
 			addToMapOffsetY(-1);
 		}
-		if(lastX+MAP_OFFSET_X-MAP_EDGE_BUFFER < 0){
+		if(lastPlayerX+MAP_OFFSET_X-MAP_EDGE_BUFFER < 0){
 			addToMapOffsetX(1);
 		}
-		if(lastY+MAP_OFFSET_Y-MAP_EDGE_BUFFER < 0){
+		if(lastPlayerY+MAP_OFFSET_Y-MAP_EDGE_BUFFER < 0){
 			addToMapOffsetY(1);
 		}
 	}
@@ -146,8 +132,8 @@ public class GameState extends State{
 		for(int x=MAP_OFFSET_X;x<w;x++){
 			for(int y=MAP_OFFSET_Y;y<h;y++){
 				Tile currentTile = map().map[y-MAP_OFFSET_Y][x-MAP_OFFSET_X];
-				Molybdenum.setAwtColor(currentTile.color);
-				Molybdenum.getText().drawString(currentTile.character+"", x*tw, y*th, Text.LEFT, 1);
+				//Molybdenum.setAwtColor(currentTile.color);
+				Molybdenum.getText().drawStringB(currentTile.character+"", x*tw, y*th, Text.LEFT, 1,currentTile.colorBG,currentTile.colorFG);
 			}
 		}
 		//Render Entities
@@ -168,7 +154,7 @@ public class GameState extends State{
 							Molybdenum.setPrettyColorMode(true);
 							glPushMatrix();
 							glTranslatef(e.x*tw+tw/2, e.y*th+th/2, 0);
-							glRotatef(rotation, 0, 0, 1);
+							glRotatef(danceRotation, 0, 0, 1);
 							glTranslatef(-(e.x*tw+tw/2), -(e.y*th+th/2), 0);
 						}
 						Molybdenum.getText().drawString(e.character+"", (e.x+MAP_OFFSET_X)*tw, (e.y+MAP_OFFSET_Y)*th, Text.LEFT, 1);
@@ -223,7 +209,7 @@ public class GameState extends State{
 			}
 			//Tile Under Player
 			Tile tile = map().map[em.getPlayer().y][em.getPlayer().x];
-			Molybdenum.setAwtColor(tile.color);
+			Molybdenum.setAwtColor(tile.colorFG);
 			this.renderTrapazoidTile(tile.character, (w + 2) * tw, 2 * th);
 			//Tile Desc
 			Molybdenum.setAwtColor(Color.GRAY);
@@ -232,7 +218,7 @@ public class GameState extends State{
 			Molybdenum.setAwtColor(em.getPlayer().color);
 			Molybdenum.getText().drawString(em.getPlayer().character + "",
 					(w + 2) * tw + (2 * tw / 3),
-					(int) ((1 * th) + playerBounceOffset), Text.LEFT, 4);
+					(int) ((1 * th) + bounceOffset), Text.LEFT, 4);
 			//Player Name
 			Molybdenum.setAwtColor(em.getPlayer().color);
 			Molybdenum.getText().drawString(em.getPlayer().name, 67 * tw,
@@ -276,7 +262,7 @@ public class GameState extends State{
 			renderBar(Color.RED,69,4,8,hb);
 
 			//Inventory Mode
-			if (invViewing) {
+			if (inventoryView) {
 				glDisable(GL_TEXTURE_2D);
 				Molybdenum.setAwtColor(Color.BLACK);
 				Molybdenum.GLQuad(7 * tw, 6 * th, 61 * tw, 30 * th);
@@ -322,7 +308,7 @@ public class GameState extends State{
 					Molybdenum.setAwtColor(em.getPlayer().equiped_weapon.color);
 					Molybdenum.getText().drawString(em.getPlayer().equiped_weapon.character + "",
 							(8)*tw,// + (2 * tw / 3),
-							(int) ((9 * th) + playerBounceOffset), Text.LEFT, 3);
+							(int) ((9 * th) + bounceOffset), Text.LEFT, 3);
 					Molybdenum.setAwtColor(Color.GRAY);
 					Molybdenum.getText().drawString("Weapon -", 11*tw, 9*th, Text.LEFT, 1);
 					if(!em.getPlayer().equiped_weapon.name.equals("Fists")){
@@ -340,7 +326,7 @@ public class GameState extends State{
 					Molybdenum.setAwtColor(em.getPlayer().equiped_armor.color);
 					Molybdenum.getText().drawString(em.getPlayer().equiped_armor.character + "",
 							(8)*tw,// + (2 * tw / 3),
-							(int) ((14 * th) + playerBounceOffset), Text.LEFT, 3);
+							(int) ((14 * th) + bounceOffset), Text.LEFT, 3);
 					Molybdenum.setAwtColor(Color.GRAY);
 					Molybdenum.getText().drawString("Armor  -", 11*tw, 14*th, Text.LEFT, 1);
 					if(!em.getPlayer().equiped_armor.name.equals("Nude")){
@@ -353,6 +339,24 @@ public class GameState extends State{
 					Molybdenum.setAwtColor(em.getPlayer().equiped_armor.color);
 					Molybdenum.getText().drawString(em.getPlayer().equiped_armor.name, 13*tw, 15*th, Text.LEFT, 1);
 					Molybdenum.getText().drawString("+"+em.getPlayer().equiped_armor.bonus+" health", 13*tw, 16*th, Text.LEFT, 1);
+				}
+				{//TODO Undecided
+					Molybdenum.setAwtColor(em.getPlayer().equiped_armor.color);
+					Molybdenum.getText().drawString("\u4200",
+							(8)*tw,// + (2 * tw / 3),
+							(int) ((19 * th) + bounceOffset), Text.LEFT, 3);
+					Molybdenum.setAwtColor(Color.GRAY);
+					Molybdenum.getText().drawString("Armor  -", 11*tw, 19*th, Text.LEFT, 1);
+					if(!em.getPlayer().equiped_armor.name.equals("Nude")){
+						Molybdenum.setAwtColor(Color.WHITE.darker());
+						Molybdenum.getText().drawString("UNEQUIP", 20*tw, 19*th, Text.LEFT, 1);
+					}
+					Molybdenum.setAwtColor(Color.GRAY);
+					Molybdenum.getText().drawString("*", 11*tw, 20*th, Text.LEFT, 1);
+					Molybdenum.getText().drawString("*", 11*tw, 21*th, Text.LEFT, 1);
+					Molybdenum.setAwtColor(em.getPlayer().equiped_armor.color);
+					Molybdenum.getText().drawString(em.getPlayer().equiped_armor.name, 13*tw, 20*th, Text.LEFT, 1);
+					Molybdenum.getText().drawString("+"+em.getPlayer().equiped_armor.bonus+" health", 13*tw, 21*th, Text.LEFT, 1);
 				}
 
 
@@ -432,7 +436,7 @@ public class GameState extends State{
 				Molybdenum.getText().drawString("+", (lw+lx-1)*tw, (d+ly)*th, Text.LEFT, 1);
 			}
 			Molybdenum.getText().drawStringS("YOU ARE DEAD", (int) ((lx+3)*tw), (ly+1)*th, Text.LEFT, 1.3f,3);
-			Molybdenum.getText().drawString(respawnWait/1000+"", (int) ((lx+lw/2)*tw), (ly+3)*th, Text.LEFT, 1);
+			Molybdenum.getText().drawString(respawnDelta/1000+"", (int) ((lx+lw/2)*tw), (ly+3)*th, Text.LEFT, 1);
 		}
 	}
 
@@ -460,7 +464,7 @@ public class GameState extends State{
 						em.speed -= 100;
 					}
 					if (Keyboard.getEventKey() == Keyboard.KEY_E) {
-						invViewing = !invViewing;
+						inventoryView = !inventoryView;
 					}
 					if (Keyboard.getEventKey() == Keyboard.KEY_Q) {
 						for(Item i:em.getPlayer().inventory){
@@ -594,6 +598,22 @@ public class GameState extends State{
 
 					}
 				}
+			}
+		}
+	}
+
+	public void addToMapOffsetX(int i){
+		if(DISPLAY_WIDTH-(MAP_OFFSET_X+i)<=map().WIDTH){
+			if(MAP_OFFSET_X+i<=0){
+				MAP_OFFSET_X += i;
+			}
+		}
+	}
+
+	public void addToMapOffsetY(int i){
+		if(DISPLAY_HEIGHT-(MAP_OFFSET_Y+i)<=map().HEIGHT){
+			if(MAP_OFFSET_Y+i<=0){
+				MAP_OFFSET_Y += i;
 			}
 		}
 	}

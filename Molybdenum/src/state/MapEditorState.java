@@ -59,7 +59,7 @@ public class MapEditorState extends State{
 		//Player Location
 		int hoverX = mouseX/tw;
 		int hoverY = mouseY/th;
-		if(mouseRight){//TODO MAP CHANGE
+		if(mouseRight){
 			if(hoverX >= 0 && hoverX < mapData.WIDTH){
 				if(hoverY >= 0 && hoverY < mapData.HEIGHT){
 					playerX = hoverX;
@@ -94,7 +94,7 @@ public class MapEditorState extends State{
 		for(int x=0;x<w;x++){
 			for(int y=0;y<h;y++){
 				Tile currentTile = mapData.map[y][x];
-				Molybdenum.setAwtColor(currentTile.color);
+				Molybdenum.setAwtColor(currentTile.colorFG);
 				Molybdenum.getText().drawString(currentTile.character+"", x*tw, y*th, Text.LEFT, 1);
 			}
 		}
@@ -121,7 +121,7 @@ public class MapEditorState extends State{
 		
 		//Selected
 		Tile tile = dictionary.getTile(selectedTileChar);
-		Molybdenum.setAwtColor(tile.color);
+		Molybdenum.setAwtColor(tile.colorFG);
 		Molybdenum.getText().drawString(selectedTileChar+"", 2, Display.getHeight()-42, Text.LEFT, 2);
 
 		//Hover
@@ -135,7 +135,7 @@ public class MapEditorState extends State{
 				Molybdenum.setAwtColor(Color.WHITE);
 				Molybdenum.GLQuad((w+2)*tw-1, 2*th-1, tw*4+2, th*4+2);
 				glEnable(GL_TEXTURE_2D);
-				Molybdenum.setAwtColor(hoverTile.color);
+				Molybdenum.setAwtColor(hoverTile.colorFG);
 				Molybdenum.getText().get(hoverTile.character).bind();;
 				Molybdenum.GLQuad((w+2)*tw, 2*th, tw*4, th*4);
 				glEnable(GL_BLEND);
@@ -152,7 +152,7 @@ public class MapEditorState extends State{
 		for (@SuppressWarnings("rawtypes") Map.Entry entry : dictionary.getMap().entrySet()) {
 			char currentChar = (char) entry.getKey();
 			Tile currentTile = (Tile) entry.getValue();
-			Molybdenum.setAwtColor(currentTile.color);
+			Molybdenum.setAwtColor(currentTile.colorFG);
 			Molybdenum.getText().drawString(currentChar+"", nX*tw, nY*th, Text.LEFT, 1);
 			nX++;
 		}

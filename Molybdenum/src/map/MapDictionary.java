@@ -16,22 +16,26 @@ public class MapDictionary {
 	public void createMap(){
 		Color brown = new Color(128,128,16);
 		//Walkable
-		tiles.put('.', new Tile('.',"Grass", Color.GREEN, false));
-		tiles.put(',', new Tile(',',"Dirt Path", brown.darker(), false));
-		tiles.put('%', new Tile('%',"Shallow Water", Color.BLUE, false));
+		tiles.put('.', new Tile('.',"Grass", Color.GREEN,setHalfOpacity(Color.GREEN.darker(),8), false));
+		tiles.put(',', new Tile(',',"Dirt Path", brown.darker(),setHalfOpacity(brown.darker(),4), false));
+		tiles.put('%', new Tile('%',"Shallow Water", Color.BLUE,setHalfOpacity(Color.BLUE,4), false));
 		tiles.put(' ', new Tile(' ',"Void", Color.WHITE, false));
-		tiles.put('-', new Tile('-',"Wood Floor", Color.orange, false));
+		tiles.put('-', new Tile('-',"Wood Floor", Color.ORANGE,setHalfOpacity(Color.ORANGE,4), false));
 		
 		//Collide
-		tiles.put('X', new Tile('X',"Water", Color.BLUE, true));
-		tiles.put('#', new Tile('#',"Stone Wall", Color.GRAY, true));
-		tiles.put('+', new Tile('+',"Wood Wall", brown, true));
-		tiles.put('*', new Tile('*',"Forest", Color.GREEN.darker().darker(), true));
-		tiles.put('_', new Tile('_',"Wood Door", brown.brighter(), true));
-		tiles.put('=', new Tile('=',"Sign", brown, true));
+		tiles.put('X', new Tile('X',"Water", Color.BLUE,setHalfOpacity(Color.BLUE,4), true));
+		tiles.put('#', new Tile('#',"Stone Wall", Color.GRAY,setHalfOpacity(Color.GRAY,4), true));
+		tiles.put('+', new Tile('+',"Wood Wall", brown,setHalfOpacity(brown,8), true));
+		tiles.put('*', new Tile('*',"Forest", Color.GREEN.darker().darker(),setHalfOpacity(Color.GREEN.darker().darker(),4), true));
+		tiles.put('_', new Tile('_',"Wood Door", brown.brighter(),setHalfOpacity(brown.brighter(),4), true));
+		tiles.put('=', new Tile('=',"Sign", brown,setHalfOpacity(brown,2), true));
 	}
 	public LinkedHashMap<Character, Tile> getMap(){
 		return tiles;
+	}
+	private Color setHalfOpacity(Color in,int s){
+		Color out = new Color(in.getRed(),in.getGreen(),in.getBlue(),in.getAlpha()/s);
+		return out;
 	}
 	
 }
