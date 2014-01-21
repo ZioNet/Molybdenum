@@ -1,3 +1,10 @@
+<<<<<<< HEAD
 /bin
 
 .metadata
+=======
+/bin
+.project
+.classpath
+.metadata
+>>>>>>> branch 'master' of https://github.com/MazakiiKasai/Molybdenum.git
