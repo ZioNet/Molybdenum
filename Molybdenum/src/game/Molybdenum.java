@@ -17,7 +17,7 @@ import state.StateManager;
 public class Molybdenum {
 	
 	/*Static Variables*/
-	public static final String VERSION = "a1.18.0";
+	public static final String VERSION = "a1.20.0";
 	public static Settings settings;
 	
 	/*Private Variables*/

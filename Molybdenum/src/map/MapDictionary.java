@@ -20,15 +20,15 @@ public class MapDictionary {
 		tiles.put(',', new Tile(',',"Dirt Path", brown.darker(),setHalfOpacity(brown.darker(),4), false));
 		tiles.put('%', new Tile('%',"Shallow Water", Color.BLUE,setHalfOpacity(Color.BLUE,4), false));
 		tiles.put(' ', new Tile(' ',"Void", Color.WHITE, false));
-		tiles.put('-', new Tile('-',"Wood Floor", Color.ORANGE,setHalfOpacity(Color.ORANGE,4), false));
+		tiles.put('-', new Tile('-',"Wood Floor", Color.ORANGE,setHalfOpacity(Color.ORANGE,8), false));
 		
 		//Collide
 		tiles.put('X', new Tile('X',"Water", Color.BLUE,setHalfOpacity(Color.BLUE,4), true));
 		tiles.put('#', new Tile('#',"Stone Wall", Color.GRAY,setHalfOpacity(Color.GRAY,4), true));
-		tiles.put('+', new Tile('+',"Wood Wall", brown,setHalfOpacity(brown,8), true));
+		tiles.put('+', new Tile('+',"Wood Wall", brown,setHalfOpacity(brown,4), true));
 		tiles.put('*', new Tile('*',"Forest", Color.GREEN.darker().darker(),setHalfOpacity(Color.GREEN.darker().darker(),4), true));
-		tiles.put('_', new Tile('_',"Wood Door", brown.brighter(),setHalfOpacity(brown.brighter(),4), true));
-		tiles.put('=', new Tile('=',"Sign", brown,setHalfOpacity(brown,2), true));
+		tiles.put('_', new Tile('_',"Wood Door", brown.brighter(),setHalfOpacity(brown,4), true));
+		tiles.put('=', new Tile('=',"Sign", brown,setHalfOpacity(brown,4), true));
 	}
 	public LinkedHashMap<Character, Tile> getMap(){
 		return tiles;

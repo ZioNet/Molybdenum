@@ -15,7 +15,9 @@ public class TestState extends State {
 	
 	public void init() {
 		bg = Texture.loadTexture("res/title.png");
-				
+		
+		Molybdenum.getStateManager().setState(StateManager.PROP2STATE);
+		return;
 	}
 	public void update(int delta) {
 		input();
@@ -29,6 +31,7 @@ public class TestState extends State {
 		
 		Molybdenum.getText().drawStringS("(There doesn't seem to be anything worth testing here...)", Display.getWidth()/2, Display.getHeight()/2-64, Text.CENTER, 1.7f, 4);
 		Molybdenum.getText().drawStringS("Press TAB to return!", Display.getWidth()/2, Display.getHeight()/2, Text.CENTER, 2f, 5);
+		
 	}
 	public void input() {
 		while(Keyboard.next()){

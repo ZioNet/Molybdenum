@@ -18,6 +18,7 @@ public class StateManager {
 	public static final int HELPSTATE = 4;
 	public static final int PROPSTATE = 5;
 	public static final int TESTSTATE = 6;
+	public static final int PROP2STATE = 7;
 	
 	
 	public StateManager(){
@@ -29,6 +30,7 @@ public class StateManager {
 		states.add(new HelpState());//4
 		states.add(new PropState());//5
 		states.add(new TestState());//6
+		states.add(new PropKeyState());//7
 	}
 	
 	public void setState(int state){

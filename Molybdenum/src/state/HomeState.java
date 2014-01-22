@@ -63,14 +63,14 @@ public class HomeState extends State {
 		    if(Keyboard.getEventKeyState()) {
 		        
 		    }else{
-		    	if (Keyboard.getEventKey() == Keyboard.KEY_DOWN || Keyboard.getEventKey() == Keyboard.KEY_S) {
+		    	if (Keyboard.getEventKey() == Keyboard.KEY_DOWN || Keyboard.getEventKey() == Molybdenum.settings.KEY_DOWN) {
 		        	if(item==items.length-1){
 		        		item = 0;
 		        	}else{
 		        		item++;
 		        	}
 		        }
-		    	if (Keyboard.getEventKey() == Keyboard.KEY_UP || Keyboard.getEventKey() == Keyboard.KEY_W) {
+		    	if (Keyboard.getEventKey() == Keyboard.KEY_UP || Keyboard.getEventKey() == Molybdenum.settings.KEY_UP) {
 		        	if(item==0){
 		        		item = items.length-1;
 		        	}else{

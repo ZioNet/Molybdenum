@@ -5,9 +5,6 @@ import graphics.Text;
 import graphics.Texture;
 
 import java.awt.Color;
-import java.io.File;
-
-import javax.swing.JFileChooser;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
@@ -24,12 +21,12 @@ public class PropState extends State {
 
 	int item;
 	String[] items = {
-			"PLAYER NAME:",
-			"DIRECTORY:",
-			"PLAYER RED: ",
-			"PLAYER GREEN: ",
-			"PLAYER BLUE: ",
-			"FINISH"
+			"PLAYER NAME:",//0
+			"PLAYER RED: ",//1
+			"PLAYER GREEN: ",//2
+			"PLAYER BLUE: ",//3
+			"Key Bindings",//4
+			"FINISH"//END
 	};
 
 	public PropState() {
@@ -75,18 +72,15 @@ public class PropState extends State {
 				current+=" "+input_player;
 			}
 			if(i==1){
-				current+=" "+input_dir;
-			}
-			if(i==2){
 				current+=" "+red;
 			}
-			if(i==3){
+			if(i==2){
 				current+=" "+green;
 			}
-			if(i==4){
+			if(i==3){
 				current+=" "+blue;
 			}
-			Molybdenum.getText().drawStringS(current, 128-xset, 128+64*i, Text.LEFT, 2f,4);
+			Molybdenum.getText().drawStringS(current, 128-xset, 128+(32*i), Text.LEFT, 2f,4);
 		}
 	}
 	boolean single=true;
@@ -101,21 +95,16 @@ public class PropState extends State {
 							}
 						}
 						if(item==1){
-							if(input_dir.length()>0){
-								input_dir = input_dir.substring(0, input_dir.length()-1);
-							}
-						}
-						if(item==2){
 							if(red.length()>0){
 								red = red.substring(0, red.length()-1);
 							}
 						}
-						if(item==3){
+						if(item==2){
 							if(green.length()>0){
 								green = green.substring(0, green.length()-1);
 							}
 						}
-						if(item==4){
+						if(item==3){
 							if(blue.length()>0){
 								blue = blue.substring(0, blue.length()-1);
 							}
@@ -130,21 +119,19 @@ public class PropState extends State {
 							if(item==0 && input_player.length()<20){
 								input_player+=c;
 							}
+						}
+						if(Character.isDigit(c)){
 							if(item==1){
-								input_dir+=c;
+								red+=c;
 							}
-							if(Character.isDigit(c)){
-								if(item==2){
-									red+=c;
-								}
-								if(item==3){
-									green+=c;
-								}
-								if(item==4){
-									blue+=c;
-								}
+							if(item==2){
+								green+=c;
+							}
+							if(item==3){
+								blue+=c;
 							}
 						}
+						
 					}
 				}
 				if(!Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)){
@@ -184,30 +171,20 @@ public class PropState extends State {
 						Molybdenum.getStateManager().setState(StateManager.HOMESTATE);
 						Molybdenum.settings.load();
 					}
-					if(item==2){
+					if(item==1){
 						Molybdenum.settings.COLOR = new Color(r,Molybdenum.settings.COLOR.getGreen(),Molybdenum.settings.COLOR.getBlue());
 					}
-					if(item==3){
+					if(item==2){
 						Molybdenum.settings.COLOR = new Color(Molybdenum.settings.COLOR.getRed(),g,Molybdenum.settings.COLOR.getBlue());
 					}
-					if(item==4){
+					if(item==3){
 						Molybdenum.settings.COLOR = new Color(Molybdenum.settings.COLOR.getRed(),Molybdenum.settings.COLOR.getGreen(),b);
 					}
-					if(item==1){
-						chooseDir();
+					if(item==4){
+						Molybdenum.getStateManager().setState(StateManager.PROP2STATE);
 					}
 				}
 			}
-		}
-	}
-
-	private void chooseDir(){
-		JFileChooser fileChooser = new JFileChooser();
-		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		int returnValue = fileChooser.showOpenDialog(null);
-		if (returnValue == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = fileChooser.getSelectedFile();
-			input_dir = selectedFile.getAbsolutePath();
 		}
 	}
 

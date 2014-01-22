@@ -22,6 +22,8 @@ public class Creature extends Entity {
 	private int maxHealth;
 
 	public boolean canAct;
+	
+	public boolean isSelected;
 
 	public int danceLevel;
 	public boolean isDancing;

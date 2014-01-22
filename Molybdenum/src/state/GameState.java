@@ -57,10 +57,10 @@ public class GameState extends State{
 
 	public int DISPLAY_WIDTH;
 	public int DISPLAY_HEIGHT;
-	public int MAP_EDGE_BUFFER = 20;
+	public int MAP_EDGE_BUFFER = 13;
 	public int MAP_OFFSET_X;
 	public int MAP_OFFSET_Y;
-	
+
 	public GameState() {
 		em = new EntityManager();
 		privateMap = new MapData();
@@ -79,6 +79,25 @@ public class GameState extends State{
 	}
 
 	public void update(int delta) {
+		//After the player is updated, update viewport changes
+		if(em.getPlayer()!=null){
+			lastPlayerX = em.getPlayer().x;
+			lastPlayerY = em.getPlayer().y;
+		}
+		if(lastPlayerX+MAP_OFFSET_X >= DISPLAY_WIDTH-MAP_EDGE_BUFFER){
+			addToMapOffsetX(-1);
+		}
+		if(lastPlayerY+MAP_OFFSET_Y >= DISPLAY_HEIGHT-MAP_EDGE_BUFFER){
+			addToMapOffsetY(-1);
+		}
+
+		if(lastPlayerX+MAP_OFFSET_X <= MAP_EDGE_BUFFER){
+			addToMapOffsetX(1);
+		}
+		if(lastPlayerY+MAP_OFFSET_Y <= MAP_EDGE_BUFFER){
+			addToMapOffsetY(1);
+		}
+
 		input();
 		em.update(delta);
 		//Bouncing
@@ -100,23 +119,6 @@ public class GameState extends State{
 			MapData spawn = Molybdenum.getWorldIO().getSpawnMapData();
 			respawnDelta = respawnWaitTime;
 			spawnPlayer(spawn);
-		}
-		//After the player is updated, update viewport changes
-		if(em.getPlayer()!=null){
-			lastPlayerX = em.getPlayer().x;
-			lastPlayerY = em.getPlayer().y;
-		}
-		if(lastPlayerX+MAP_OFFSET_X+MAP_EDGE_BUFFER > DISPLAY_WIDTH){
-			addToMapOffsetX(-1);
-		}
-		if(lastPlayerY+MAP_OFFSET_Y+MAP_EDGE_BUFFER > DISPLAY_HEIGHT){
-			addToMapOffsetY(-1);
-		}
-		if(lastPlayerX+MAP_OFFSET_X-MAP_EDGE_BUFFER < 0){
-			addToMapOffsetX(1);
-		}
-		if(lastPlayerY+MAP_OFFSET_Y-MAP_EDGE_BUFFER < 0){
-			addToMapOffsetY(1);
 		}
 	}
 	public void render() {
@@ -141,12 +143,16 @@ public class GameState extends State{
 			if(e.map.filename.equals(map().filename)){
 				if(e.x > MAP_OFFSET_X && e.x <= DISPLAY_WIDTH-MAP_OFFSET_X){
 					if(e.y > MAP_OFFSET_Y && e.y <= DISPLAY_HEIGHT-MAP_OFFSET_Y){
-						Molybdenum.setAwtColor(e.color);
+						//Molybdenum.setAwtColor(e.color);
 						boolean dance = false;
+						Color bg = new Color(0,0,0,0);
 						if(e instanceof Creature){
 							Creature c = (Creature)e;
 							if(c.isDancing){
 								dance = true;
+							}
+							if(c.isSelected){
+								bg = setHalfOpacity(Color.CYAN, 2);
 							}
 
 						}
@@ -157,7 +163,7 @@ public class GameState extends State{
 							glRotatef(danceRotation, 0, 0, 1);
 							glTranslatef(-(e.x*tw+tw/2), -(e.y*th+th/2), 0);
 						}
-						Molybdenum.getText().drawString(e.character+"", (e.x+MAP_OFFSET_X)*tw, (e.y+MAP_OFFSET_Y)*th, Text.LEFT, 1);
+						Molybdenum.getText().drawStringB(e.character+"", (e.x+MAP_OFFSET_X)*tw, (e.y+MAP_OFFSET_Y)*th, Text.LEFT, 1,bg,e.color);
 						if(dance){
 							glPopMatrix();
 							Molybdenum.setPrettyColorMode(false);
@@ -231,22 +237,28 @@ public class GameState extends State{
 				Molybdenum.getText().drawString("=", d * tw, 12 * th,
 						Text.LEFT, 1);
 			}
-			int pi = 0;
+			int listIndex = 0;//TODO Entity highlighting
 			for (int i=0;i<em.getEntities().size();i++) {
 				Entity e = em.getEntities().get(i);
 				if(e instanceof Creature && !((Creature) e).name.equals(em.getPlayer().name) && e.map.filename.equals(map().filename)){
 					Creature c = (Creature)e;
-					Molybdenum.setAwtColor(c.color);
-					Molybdenum.getText().drawString(c.character+":", tw*61, (13+pi)*th, Text.LEFT, 1);
-					Molybdenum.setAwtColor(Color.GRAY);
+					Color color = Color.BLACK;
+					if(mouseX/tw > 61 && mouseX/tw < 79 && mouseY/th > 12 && mouseY/th < 42 && listIndex == (mouseY/th)-13){
+						color = setHalfOpacity(Color.CYAN, 4);
+						c.isSelected = true;
+					}else{
+						c.isSelected = false;
+					}
+					Molybdenum.getText().drawStringB(c.character+":", tw*61, (13+listIndex)*th, Text.LEFT, 1, color, c.color);
+					Color color2 = Color.GRAY;
 					if(c.relationsWith(em.getPlayer().name)==Creature.RELATION_LIKED){
-						Molybdenum.setAwtColor(Color.GREEN);
+						color = Color.GREEN;
 					}
 					if(c.relationsWith(em.getPlayer().name)==Creature.RELATION_HATED){
-						Molybdenum.setAwtColor(Color.RED);
+						color = Color.RED;
 					}
-					Molybdenum.getText().drawString(c.name, tw*63, (13+pi)*th, Text.LEFT, 1);
-					pi++;
+					Molybdenum.getText().drawStringB(c.name+"                ", tw*63, (13+listIndex)*th, Text.LEFT, 1,color,color2);
+					listIndex++;
 				}
 			}
 			//Health Numbers
@@ -303,7 +315,6 @@ public class GameState extends State{
 				Molybdenum.getText().drawString("*", 67 * tw, 35 * th,
 						Text.LEFT, 1);
 
-				//TODO Equip
 				{//WEAPON
 					Molybdenum.setAwtColor(em.getPlayer().equiped_weapon.color);
 					Molybdenum.getText().drawString(em.getPlayer().equiped_weapon.character + "",
@@ -340,7 +351,7 @@ public class GameState extends State{
 					Molybdenum.getText().drawString(em.getPlayer().equiped_armor.name, 13*tw, 15*th, Text.LEFT, 1);
 					Molybdenum.getText().drawString("+"+em.getPlayer().equiped_armor.bonus+" health", 13*tw, 16*th, Text.LEFT, 1);
 				}
-				{//TODO Undecided
+				/*{//TODO Undecided
 					Molybdenum.setAwtColor(em.getPlayer().equiped_armor.color);
 					Molybdenum.getText().drawString("\u4200",
 							(8)*tw,// + (2 * tw / 3),
@@ -357,7 +368,7 @@ public class GameState extends State{
 					Molybdenum.setAwtColor(em.getPlayer().equiped_armor.color);
 					Molybdenum.getText().drawString(em.getPlayer().equiped_armor.name, 13*tw, 20*th, Text.LEFT, 1);
 					Molybdenum.getText().drawString("+"+em.getPlayer().equiped_armor.bonus+" health", 13*tw, 21*th, Text.LEFT, 1);
-				}
+				}*/
 
 
 				//Items
@@ -449,7 +460,7 @@ public class GameState extends State{
 		while(Keyboard.next()){
 			if(Keyboard.getEventKeyState()){}else{
 				if(!death){
-					if (Keyboard.getEventKey() == Keyboard.KEY_SPACE) {
+					if (Keyboard.getEventKey() == Molybdenum.settings.KEY_PICKUP) {
 						if (em.isItemAt(em.getPlayer(), em.getPlayer().x,em.getPlayer().y)) {
 							boolean yay = em.getPlayer().addItem(em.getItemAt(em.getPlayer(), em.getPlayer().x,em.getPlayer().y));
 							if(yay){
@@ -463,10 +474,10 @@ public class GameState extends State{
 					if (Keyboard.getEventKey() == Keyboard.KEY_MINUS) {
 						em.speed -= 100;
 					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_E) {
+					if (Keyboard.getEventKey() == Molybdenum.settings.KEY_INVENTORY) {
 						inventoryView = !inventoryView;
 					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_Q) {
+					if (Keyboard.getEventKey() == Molybdenum.settings.KEY_QUICK_EAT) {
 						for(Item i:em.getPlayer().inventory){
 							if(i instanceof Food){
 								Food food = (Food)i;
@@ -480,50 +491,6 @@ public class GameState extends State{
 					}
 					if (Keyboard.getEventKey() == Keyboard.KEY_H) {
 						em.getPlayer().health-=5;
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_G) {
-						Item gold = new Item(new Color(255,255,64));
-						gold.name = "Gold";
-						gold.description = "Some funny looking gold";
-						gold.quantity = 1;
-						gold.map = map();
-						gold.character = 'g';
-
-						em.getPlayer().addItem(gold);
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_I) {
-						for (Entity e : em.getEntities()) {
-							if (e instanceof Creature) {
-								Creature c = (Creature) e;
-								System.out.println(c.name+" - Health:"+c.health);//TODO Debug
-							}
-						}
-						System.out.println();
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_K) {
-						for (Entity e : em.getEntities()) {
-							if (e instanceof Creature) {
-								Creature c = (Creature)e;
-								if(c.map.filename.equals(map().filename)){
-									if(!c.name.equals(em.getPlayer().name)){
-										c.health--;
-										System.out.println(c.name+" has been injured");//TODO Debug
-									}
-								}
-							}
-						}
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_UP) {
-						addToMapOffsetY(-1);
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_DOWN) {
-						addToMapOffsetY(+1);
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_LEFT) {
-						addToMapOffsetX(-1);
-					}
-					if (Keyboard.getEventKey() == Keyboard.KEY_RIGHT) {
-						addToMapOffsetX(+1);
 					}
 				}
 			}
@@ -733,5 +700,9 @@ public class GameState extends State{
 		glEnd();
 
 		glEnable(GL_BLEND);
+	}
+	private Color setHalfOpacity(Color in,int s){
+		Color out = new Color(in.getRed(),in.getGreen(),in.getBlue(),in.getAlpha()/s);
+		return out;
 	}
 }
