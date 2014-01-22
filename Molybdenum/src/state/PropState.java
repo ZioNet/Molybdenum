@@ -115,7 +115,7 @@ public class PropState extends State {
 							c = Character.toUpperCase(c);
 						}
 						//System.out.print(c+"\n");
-						if(Character.isLetterOrDigit(c) || c=='|' || c=='/' || c=='\\' || c==':'){
+						if(Character.isLetterOrDigit(c) || c=='|' || c=='/' || c=='\\' || c==':' || c=='_' ){
 							if(item==0 && input_player.length()<20){
 								input_player+=c;
 							}
